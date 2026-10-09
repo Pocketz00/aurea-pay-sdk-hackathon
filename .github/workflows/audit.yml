@@ -1,0 +1,62 @@
+name: Weekly dependency audit
+
+# Phase 3 plan item K — npm audit signatures cron.
+#
+# Runs `npm audit signatures` once a week to verify every published
+# package in the dependency tree has a valid sigstore attestation. A
+# missing or invalid signature means somewhere in our dependency
+# chain a maintainer's npm credentials may have been compromised
+# and the published artifact replaced. We catch that quickly here.
+#
+# Also runs `npm audit` for known CVEs and posts a summary to the
+# Action run; CVEs at high or critical severity fail the job (so
+# they show up red in the GitHub UI / email digest).
+
+on:
+  schedule:
+    - cron: '17 9 * * 1'   # Mondays at 09:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install (no audit during install)
+        run: npm ci --ignore-scripts --audit=false
+
+      - name: npm audit (high severity floor)
+        # Fails the job at HIGH or above. Moderate / low are reported
+        # in the summary but don't break CI — cleaning those up is a
+        # backlog item, not a Sev-2 page-out.
+        run: |
+          set -euo pipefail
+          npm audit --audit-level=high --json > audit.json || true
+          if jq -e '.vulnerabilities | to_entries[] | select(.value.severity == "high" or .value.severity == "critical")' audit.json > /dev/null; then
+            echo "::error::High or critical CVE found in dependency tree"
+            npm audit --audit-level=high
+            exit 1
+          fi
+          echo "No high/critical CVEs."
+          npm audit || true
+
+      - name: npm audit signatures
+        # Fails on any unsigned or invalid-signed package. This is a
+        # supply-chain-attack tripwire — npm packages that suddenly
+        # change their signing key get caught here.
+        run: |
+          set -euo pipefail
+          npm audit signatures

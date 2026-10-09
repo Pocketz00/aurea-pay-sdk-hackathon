@@ -1,0 +1,107 @@
+{
+  "name": "@aureahub/pay",
+  "version": "0.3.6",
+  "description": "Official Node.js SDK for the Aurea Pay Partner API — accept SEPA + card payments from any e-commerce.",
+  "author": "Aurea Pay",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pocketz00/aurea-pay-sdk.git"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./webhooks": {
+      "import": {
+        "types": "./dist/webhooks.d.ts",
+        "default": "./dist/webhooks.js"
+      },
+      "require": {
+        "types": "./dist/webhooks.d.cts",
+        "default": "./dist/webhooks.cjs"
+      }
+    },
+    "./browser": {
+      "import": {
+        "types": "./dist/browser.d.ts",
+        "default": "./dist/browser.js"
+      },
+      "require": {
+        "types": "./dist/browser.d.cts",
+        "default": "./dist/browser.cjs"
+      }
+    },
+    "./react": {
+      "import": {
+        "types": "./dist/react.d.ts",
+        "default": "./dist/react.js"
+      },
+      "require": {
+        "types": "./dist/react.d.cts",
+        "default": "./dist/react.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://pay.aureahub.com/docs",
+  "bugs": {
+    "url": "https://github.com/Pocketz00/aurea-pay-sdk/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "audit:no-runtime-deps": "node -e \"const p=require('./package.json');if(p.dependencies&&Object.keys(p.dependencies).length){console.error('SDK must ship with zero runtime dependencies. Found:',Object.keys(p.dependencies));process.exit(1)}else{console.log('ok: zero runtime dependencies')}\"",
+    "prepublishOnly": "npm run audit:no-runtime-deps && npm run typecheck && npm run test && npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "aurea",
+    "aurea-pay",
+    "payments",
+    "sepa",
+    "mollie",
+    "checkout",
+    "ecommerce",
+    "sdk"
+  ]
+}

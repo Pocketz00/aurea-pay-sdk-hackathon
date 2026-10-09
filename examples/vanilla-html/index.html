@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Aurea Pay — Vanilla HTML example</title>
+    <style>
+      body { font-family: system-ui, sans-serif; padding: 32px; max-width: 500px; margin: 0 auto }
+      button {
+        background: #0070f3; color: #fff; border: 0; padding: 12px 20px;
+        border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px
+      }
+      button:disabled { opacity: 0.5; cursor: not-allowed }
+    </style>
+  </head>
+  <body>
+    <h1>Demo store</h1>
+    <p>Your order total: <strong>€49.99</strong></p>
+    <button id="pay">Pay with Aurea Pay</button>
+
+    <script type="module">
+      // In production, bundle @aureahub/pay/browser via your build tool. This
+      // example uses the module directly for brevity.
+      import { openCheckout } from 'https://unpkg.com/@aureahub/pay/dist/browser.mjs'
+
+      document.getElementById('pay').addEventListener('click', async () => {
+        // Your server creates the session — never your API key in the browser.
+        const res  = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: 4999, orderId: 'ORD-123' }),
+        })
+        const { sessionId } = await res.json()
+
+        openCheckout({ sessionId })
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+version: 2
+
+# Phase 3 plan item — group security updates so a single PR per ecosystem
+# per week, not one per package.
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: 'Europe/Rome'
+    open-pull-requests-limit: 5
+    groups:
+      # All security patches roll up into one PR; avoids per-CVE noise.
+      security-updates:
+        applies-to: security-updates
+        update-types:
+          - patch
+          - minor
+      # Dev dependencies get one rollup PR per week, regardless of severity.
+      dev-deps:
+        dependency-type: development
+        update-types:
+          - patch
+          - minor
+      # Production deps need closer review — minor by default; major opt-in.
+      prod-deps:
+        dependency-type: production
+        update-types:
+          - patch
+          - minor
+    reviewers:
+      - Pocketz00
+    commit-message:
+      prefix: deps
+      include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
